@@ -11,6 +11,7 @@ var port = 6379;
 var host = "192.168.102.86";
 var options = {};
 
+
 /*** 构造器 ***/
 var factory = {
     create: function () {
