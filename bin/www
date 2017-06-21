@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+/*** 模块引用 ***/
+var http = require('http');
+var os = require('os');
+var debug = require('debug')('P2P-Signal-Controller:server');
+/*** 自定义 ***/
+//端口号
+var port;
+/**
+ * 规范化端口
+ * @val            端口号
+ */
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+  if (isNaN(port)) {
+    return val;                                       // named pipe
+  }
+  if (port >= 0) {
+    return port;                                      // port number
+  }
+  return false;
+}
+
+/*** 开启HTTP控制服务器 ***/
+var app = require("../app");
+port = normalizePort(process.env.PORT || '8080');
+console.log(port);
+app.set('port', port);
+var server = http.createServer(app);
+server.listen(port);
+server.on('error',  function(error){
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+  
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+});
+server.on('listening', function(){
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+});
